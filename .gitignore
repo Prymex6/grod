@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+.venv/
+
+# python
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# builds
+dist/
+build/
+
+# local configuration, data and secrets
+.env
+.env.local
+var/
+
+# working notes, internal documentation and design tooling: the repository
+# holds the application, not the notes made while building it
+CLAUDE.md
+docs/
+design/
+tools/

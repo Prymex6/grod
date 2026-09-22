@@ -1,0 +1,8 @@
+# One line ending everywhere. The platform reads and writes repository files
+# byte for byte, so a checkout that rewrote them would change what it serves.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.pem binary
