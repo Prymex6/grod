@@ -1,0 +1,53 @@
+# Backing services only, for working on the platform itself.
+# The whole platform, API and console included, is in compose.yml at the root.
+#
+#   docker compose -f infra/docker-compose.yml up -d
+name: grod-services
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-grod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-grod}
+      POSTGRES_DB: ${POSTGRES_DB:-grod}
+    ports:
+      # Not 5432, because a development machine usually has one already.
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      # PostgreSQL 18 wants the parent directory mounted, not the data one.
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-grod} -d ${POSTGRES_DB:-grod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--save", "60", "1", "--appendonly", "no"]
+    ports:
+      # As above: 6379 is often taken.
+      - "${VALKEY_PORT:-6380}:6379"
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    # Catches every message the platform sends and shows it in a browser,
+    # so no real mail is needed while developing.
+    image: axllent/mailpit:latest
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      - "${SMTP_PORT:-1025}:1025" # what the API sends to
+      - "${MAILPIT_PORT:-8025}:8025" # the mailbox, at http://localhost:8025
+
+volumes:
+  postgres-data:
+  valkey-data:

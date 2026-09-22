@@ -1,0 +1,100 @@
+# The whole platform, from nothing:
+#
+#   cp .env.example .env
+#   docker compose up --build
+#
+# The console is then at http://localhost:8080 and the mail it sends at
+# http://localhost:8025. Sign up on the console; the first account is an
+# account like any other.
+name: grod
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-grod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-grod}
+      POSTGRES_DB: ${POSTGRES_DB:-grod}
+    volumes:
+      # PostgreSQL 18 wants the parent directory mounted, not the data one.
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-grod} -d ${POSTGRES_DB:-grod}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--save", "60", "1", "--appendonly", "no"]
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    # Catches every message instead of sending it, and shows them in a browser.
+    image: axllent/mailpit:latest
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      - "${MAILPIT_PORT:-8025}:8025"
+
+  api:
+    build: ./backend
+    # The schema is brought up to date before the first request, so a fresh
+    # clone needs no migration step of its own.
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn grod.main:app --host 0.0.0.0 --port 8000"
+    environment:
+      GROD_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-grod}:${POSTGRES_PASSWORD:-grod}@postgres:5432/${POSTGRES_DB:-grod}
+      GROD_VALKEY_URL: redis://valkey:6379/0
+      GROD_SMTP_HOST: mailpit
+      GROD_SMTP_PORT: 1025
+      GROD_PUBLIC_URL: ${GROD_PUBLIC_URL:-http://localhost:8080/}
+      GROD_INSTANCE_NAME: ${GROD_INSTANCE_NAME:-Gród}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - platform-data:/app/var
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+
+  ssh:
+    # Git over SSH is a second front door, so it is a second process.
+    build: ./backend
+    command: ["grod-ssh"]
+    environment:
+      GROD_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-grod}:${POSTGRES_PASSWORD:-grod}@postgres:5432/${POSTGRES_DB:-grod}
+      GROD_VALKEY_URL: redis://valkey:6379/0
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "${GROD_SSH_PORT:-2222}:2222"
+    volumes:
+      - platform-data:/app/var
+    depends_on:
+      api:
+        condition: service_started
+
+  web:
+    build: ./frontend
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres-data:
+  valkey-data:
+  platform-data:
