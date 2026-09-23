@@ -17,7 +17,7 @@ stands inside one — the gate, the forge, the granary, the treasury — which i
 why the console says **Kuźnia** where the code says `ci`. The names live in the
 translation files; the code is English throughout.
 
-![The console](.github/images/console.png)
+![Reviewing a change](.github/images/review.png)
 
 ---
 
@@ -77,14 +77,18 @@ were granted and nothing their owner happens to have.
 
 ## Screenshots
 
+The console is bilingual. These are taken with it set to English, which is
+also how the module names sitting in the sidebar in Polish make sense: those
+are proper nouns and stay as they are in both languages.
+
 | | |
 |---|---|
-| ![Repository](.github/images/repository.png) | ![Review](.github/images/review.png) |
-| Browsing a repository | Reviewing a change |
-| ![Pipeline](.github/images/pipeline.png) | ![Merge queue](.github/images/merge-queue.png) |
-| A pipeline run | The merge queue |
-| ![Workspace](.github/images/workspace.png) | ![Storage](.github/images/storage.png) |
-| A workspace with a terminal | Object storage |
+| ![Browsing a repository](.github/images/repository.png) | ![Reading a file](.github/images/file.png) |
+| Browsing a repository | Reading a file, coloured by language |
+| ![Projects](.github/images/projects.png) | ![Object storage](.github/images/storage.png) |
+| The projects an account can reach | Object storage |
+| ![Signing in](.github/images/login.png) | ![The dashboard](.github/images/console.png) |
+| Signing in, with a passkey as an option | The state of the instance |
 
 ---
 
