@@ -12,7 +12,7 @@ export function EmptyRepository({ project }: { project: Project }): ReactNode {
     'git init',
     `git remote add origin ${project.cloneUrl}`,
     'git add .',
-    'git commit -m "Pierwszy commit"',
+    `git commit -m "${t('project.empty.firstCommit')}"`,
     `git push -u origin ${project.defaultBranch}`,
   ].join('\n');
 

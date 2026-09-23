@@ -224,6 +224,7 @@ export const pl = {
   'project.empty.heading': 'Repozytorium jest puste',
   'project.empty.intro': 'Wypchnij pierwszy commit, a zobaczysz tu drzewo plików.',
   'project.empty.cloneHeading': 'Klonowanie',
+  'project.empty.firstCommit': 'Pierwszy commit',
   'project.empty.pushHeading': 'Pierwszy push z istniejącego katalogu',
   'project.empty.copyCommands': 'Skopiuj komendy',
   'project.empty.tokenHint':

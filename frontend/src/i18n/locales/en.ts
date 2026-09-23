@@ -227,6 +227,7 @@ export const en: Record<keyof typeof pl, string> = {
   'project.error.commits': 'The history could not be loaded.',
   'project.empty.heading': 'The repository is empty',
   'project.empty.intro': 'Push the first commit and the file tree will appear here.',
+  'project.empty.firstCommit': 'First commit',
   'project.empty.cloneHeading': 'Cloning',
   'project.empty.pushHeading': 'First push from an existing folder',
   'project.empty.copyCommands': 'Copy the commands',
